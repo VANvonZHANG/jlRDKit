@@ -1,0 +1,59 @@
+# WrapIt configuration for RDKit CxxWrap wrapper
+module_name = "RDKit"
+uuid = "e6a2f8d1-7b3c-4d9a-b5e2-f1a3c8d7e9b2"
+
+# Input: RDKit core headers (ordered by dependency)
+input = [
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/RDGeneral/types.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/RDGeneral/RDProps.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/Atom.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/Bond.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/ROMol.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/RWMol.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/Conformer.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/RingInfo.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/StereoGroup.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/MonomerInfo.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/MolOps.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/SmilesParse/SmilesParse.h",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit/GraphMol/SmilesParse/SmilesWrite.h"
+]
+
+include_dirs = [
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit",
+    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include",
+    "/usr/include",
+    "/usr/include/boost"
+]
+
+# C++ standard
+cxx-std = "c++20"
+
+# Generation control
+propagation_mode = "types"
+auto_veto = true
+n_classes_per_file = 0
+fields_and_variables = true
+
+# RDKit uses RDKIT_*_EXPORT macros that must be cleared
+clang_opts = [
+    "-DRDKIT_GRAPHMOL_EXPORT=",
+    "-DRDKIT_RDKIT_EXPORT=",
+    "-DRDKIT_RDGENERAL_EXPORT=",
+    "-DRDKIT_SMILESPARSE_EXPORT=",
+    "-DRDKIT_FILEPARSERS_EXPORT=",
+    "-DRDKIT_SUBSTRUCTMATCH_EXPORT="
+]
+
+# Inheritance declarations
+inheritances = [
+    "RWMol:ROMol",
+    "QueryAtom:Atom",
+    "QueryBond:Bond"
+]
+
+# Veto file for problematic types
+veto_list = "gen/veto.h"
+
+# Output paths
+output-prefix = "libRDKit"

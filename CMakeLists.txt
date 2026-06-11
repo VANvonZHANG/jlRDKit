@@ -41,15 +41,26 @@ message(STATUS "JlCxx include: ${JLCXX_INCLUDE_DIR}")
 message(STATUS "JlCxx library: ${JLCXX_LIBRARY}")
 
 # ============================================================
+# 手写入口点（替代 WrapIt 生成的代码）
+# WrapIt 输出有编译错误（setAromaticity 重载、unique_ptr 拷贝问题），
+# 改用手写 rdkit_module.cpp 作为 CxxWrap 注册入口。
+# WrapIt 生成的代码在 libRDKit/src/jlRDKit.cxx 可作参考。
+# ============================================================
+
+# ============================================================
 # 编译 wrapper 共享库
 # ============================================================
 
-add_library(RDKitWrap SHARED src/rdkit_wrapper.cpp)
+add_library(RDKitWrap SHARED
+    src/rdkit_module.cpp
+    src/rdkit_shims.cpp
+)
 
 target_include_directories(RDKitWrap PRIVATE
     ${RDKIT_INCLUDE_DIR}
     ${JLCXX_INCLUDE_DIR}
     ${JULIA_INCLUDE_DIR}
+    ${CMAKE_SOURCE_DIR}/src    # rdkit_shims.h
 )
 
 # 链接 RDKit C++ 库 + JlCxx
@@ -59,9 +70,10 @@ target_link_libraries(RDKitWrap PRIVATE
     ${RDKIT_LIB_DIR}/libRDKitSmilesParse.so
     ${RDKIT_LIB_DIR}/libRDKitRDGeneral.so
     ${RDKIT_LIB_DIR}/libRDKitRDGeometryLib.so
+    ${RDKIT_LIB_DIR}/libRDKitSubstructMatch.so
 )
 
-# 设置 RPATH，确保运行时能找到 JlCxx 和 RDKit 库
+# RPATH
 set_target_properties(RDKitWrap PROPERTIES
     BUILD_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR}"
     INSTALL_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR}"

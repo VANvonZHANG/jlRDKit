@@ -1,1 +1,8 @@
 build/
+generated/
+libRDKit/
+*.o
+*.so
+build_log.txt
+RDKit/
+jlRDKit-report.txt
