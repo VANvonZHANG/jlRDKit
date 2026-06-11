@@ -21,13 +21,13 @@ input = [
 
 # Include directories (resolved at build time from Julia JLL packages)
 include_dirs = [
-    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include/rdkit",
-    "/data/zhangfan_data/julia_env/artifacts/f75c34cbe6e791127e1e6381ec91fa3fd9025abd/include",
-    "/data/zhangfan_data/julia_env/artifacts/c74f464ba08d47b17764bb8c69c43b8213993c45/include",
-    "/home/zhangfan/julia-1.10.10/include/julia",
+    "@RDKIT_INCLUDE_DIR@",
+    "@RDKIT_ROOT_INCLUDE_DIR@",
+    "@JLCXX_INCLUDE_DIR@",
+    "@JULIA_INCLUDE_DIR@",
     "/usr/include",
-    "/data/zhangfan_data/julia_env/artifacts/3d5bf8a817e520b6422a0630700ccac87eb57e9e/include",
-    "/data/zhangfan_data/julia_env/artifacts/3d5bf8a817e520b6422a0630700ccac87eb57e9e/include/boost"
+    "@BOOST_ROOT_INCLUDE_DIR@",
+    "@BOOST_INCLUDE_DIR@"
 ]
 
 # C++ standard

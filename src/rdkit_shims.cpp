@@ -1,4 +1,4 @@
-// rdkit_shims.cpp — Shim 函数实现
+// rdkit_shims.cpp — Shim function implementations
 #include "rdkit_shims.h"
 #include <GraphMol/ROMol.h>
 #include <GraphMol/RWMol.h>
@@ -6,7 +6,7 @@
 #include <GraphMol/SmilesParse/SmilesParse.h>
 #include <GraphMol/SmilesParse/SmilesWrite.h>
 
-// SMILES → 分子（隐藏 SmilesParserParams）
+// SMILES to molecule (hides SmilesParserParams)
 std::shared_ptr<RDKit::RWMol> smiles_to_mol(const std::string& smi) {
     RDKit::v2::SmilesParse::SmilesParserParams params;
     params.sanitize = true;
@@ -15,7 +15,7 @@ std::shared_ptr<RDKit::RWMol> smiles_to_mol(const std::string& smi) {
     return std::shared_ptr<RDKit::RWMol>(ptr.release());
 }
 
-// 分子 → SMILES（隐藏 SmilesWriteParams）
+// Molecule to SMILES (hides SmilesWriteParams)
 std::string mol_to_smiles(const std::shared_ptr<RDKit::RWMol>& mol) {
     RDKit::SmilesWriteParams params;
     params.doIsomericSmiles = true;
@@ -23,7 +23,7 @@ std::string mol_to_smiles(const std::shared_ptr<RDKit::RWMol>& mol) {
     return RDKit::MolToSmiles(*mol, params);
 }
 
-// 遍历所有原子，返回裸指针向量（绕过 boost 迭代器）
+// Traverse all atoms, return raw pointer vector (bypassing boost iterators)
 std::vector<const RDKit::Atom*> mol_get_atoms(const RDKit::ROMol& mol) {
     std::vector<const RDKit::Atom*> result;
     for (const auto& atom : mol.atoms()) {

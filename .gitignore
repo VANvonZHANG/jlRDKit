@@ -6,3 +6,5 @@ libRDKit/
 build_log.txt
 RDKit/
 jlRDKit-report.txt
+gen/config.toml
+gen/config.toml.hardcoded
