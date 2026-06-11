@@ -30,21 +30,21 @@ template<> struct SuperType<RDKit::RWMol> { typedef RDKit::ROMol type; };
 // Shim 函数：简化 RDKit API 为 CxxWrap 可处理的签名
 // ============================================================
 
-/// 从 SMILES 创建分子（使用 v2 API）
-RWMol* smiles_to_mol(const std::string& smi) {
+/// 从 SMILES 创建分子（使用 v2 API，返回 shared_ptr 以便 CxxWrap 管理）
+std::shared_ptr<RWMol> smiles_to_mol(const std::string& smi) {
     RDKit::v2::SmilesParse::SmilesParserParams params;
     params.sanitize = true;
     params.removeHs = true;
     auto ptr = RDKit::v2::SmilesParse::MolFromSmiles(smi, params);
-    return ptr.release();
+    return std::shared_ptr<RWMol>(ptr.release());
 }
 
-/// 分子转 SMILES（MolToSmiles 在 RDKit 命名空间中，不在 SmilesWrite 中）
-std::string mol_to_smiles(const RDKit::ROMol& mol) {
+/// 分子转 SMILES（接受 shared_ptr，CxxWrap 自动处理继承）
+std::string mol_to_smiles(const std::shared_ptr<RWMol>& mol) {
     SmilesWriteParams params;
     params.doIsomericSmiles = true;
     params.canonical = true;
-    return RDKit::MolToSmiles(mol, params);
+    return RDKit::MolToSmiles(*mol, params);
 }
 
 /// 获取原子数（消除 getNumAtoms(bool) 重载歧义）
