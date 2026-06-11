@@ -68,3 +68,44 @@
 // 7. debugMol method takes std::ostream& (blocked by ostream veto above,
 //    but also veto the method itself for clarity)
 /.*debugMol.*/
+
+// 8. Bookmark map types — return std::map<int, std::list<Atom/Bond*>>
+//    CxxWrap cannot create factories for these deeply nested std types
+/.*getAtomBookmarks.*/
+/.*getBondBookmarks.*/
+
+// 9. Boost edge_descriptor — used by ROMol::operator[] but CxxWrap can't handle
+//    the boost::detail::edge_desc_impl template
+/.*edge_descriptor.*/
+
+// 10. Methods returning/using std::map or std::list — CxxWrap can't handle
+//     nested std allocators in these template types.
+//     Error: "No appropriate factory for type St3mapI..." (std::map<string,string>)
+//     or "No appropriate factory for type St4listI..." (std::list<int>)
+
+// replacements field in SmilesParserParams/SmartsParserParams returns std::map<string,string>
+/.*replacements.*/
+
+// SmilesToMol overloads that take std::map<string,string>* parameter
+// (the SmilesParserParams overload is fine since params themselves are passed by ref)
+/.*SmilesToMol.*std::map.*/
+
+// SmartsToMol overloads that take std::map<string,string>* parameter
+/.*SmartsToMol.*std::map.*/
+
+// getShortestPath returns std::list<int>
+/.*getShortestPath.*/
+
+// 11. Methods returning/using std::string_view (aka std::basic_string_view)
+//     CxxWrap cannot create factories for std::string_view because it requires
+//     std::char_traits<char> which is not registered.
+//     Error: "No appropriate factory for type St17basic_string_viewIcSt11char_traitsIcEE"
+
+// common_properties constants are all const std::string_view&
+/.*common_properties.*/
+
+// detail::computedPropName returns const std::string_view&
+/.*detail::computedPropName.*/
+
+// getNumAtomsWithDistinctProperty takes string_view parameter
+/.*getNumAtomsWithDistinctProperty.*/

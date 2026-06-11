@@ -22,6 +22,9 @@ set(JLCXX_LIBRARY "${JLCXX_ROOT}/lib/libcxxwrap_julia.so")
 set(JULIA_ROOT "$ENV{JULIA_ROOT}" CACHE PATH "Julia installation root")
 set(JULIA_INCLUDE_DIR "${JULIA_ROOT}/include/julia")
 
+# Boost headers (from transitive dependency or system)
+set(BOOST_ROOT "$ENV{BOOST_ROOT}" CACHE PATH "Boost installation root")
+
 # Verify required files exist
 foreach(_path
     "${RDKIT_INCLUDE_DIR}/GraphMol/ROMol.h"
@@ -43,25 +46,60 @@ message(STATUS "RDKit lib:     ${RDKIT_LIB_DIR}")
 message(STATUS "JlCxx include: ${JLCXX_INCLUDE_DIR}")
 message(STATUS "JlCxx library: ${JLCXX_LIBRARY}")
 message(STATUS "Julia include: ${JULIA_INCLUDE_DIR}")
+if(BOOST_ROOT)
+    message(STATUS "Boost root:    ${BOOST_ROOT}")
+endif()
+
+# ============================================================
+# WrapIt-generated code location
+# ============================================================
+
+set(GENERATED_DIR "${CMAKE_SOURCE_DIR}/libRDKit/src")
+
+if(NOT EXISTS "${GENERATED_DIR}/jlRDKit.cxx")
+    message(FATAL_ERROR
+        "WrapIt generated code not found at ${GENERATED_DIR}/jlRDKit.cxx\n"
+        "Run: cd jlRDKit && julia --project=../jlRDKit_test gen/build.jl"
+    )
+endif()
+
+# ============================================================
+# Per-file compile definition: rename define_julia_module in WrapIt output
+# so our wrapit_integration.cpp can wrap it and add shim functions
+# ============================================================
+
+set_source_files_properties("${GENERATED_DIR}/jlRDKit.cxx" PROPERTIES
+    COMPILE_DEFINITIONS "define_julia_module=wrapit_module"
+)
 
 # ============================================================
 # Wrapper shared library
 # ============================================================
 
-add_library(RDKitWrap SHARED
-    src/rdkit_module.cpp
+add_library(jlRDKit SHARED
+    "${GENERATED_DIR}/jlRDKit.cxx"
+    src/wrapit_integration.cpp
     src/rdkit_shims.cpp
 )
 
-target_include_directories(RDKitWrap PRIVATE
+target_include_directories(jlRDKit PRIVATE
     ${RDKIT_INCLUDE_DIR}
+    ${RDKIT_INCLUDE_DIR}/..        # for #include "rdkit/..." from jlRDKit.h
     ${JLCXX_INCLUDE_DIR}
     ${JULIA_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}/src    # rdkit_shims.h
+    ${GENERATED_DIR}               # Wrapper.h, dbg_msg.h, jlRDKit.h
+    ${CMAKE_SOURCE_DIR}/src        # rdkit_shims.h
 )
 
+if(BOOST_ROOT)
+    target_include_directories(jlRDKit PRIVATE
+        "${BOOST_ROOT}/include"
+        "${BOOST_ROOT}"
+    )
+endif()
+
 # Link RDKit C++ libraries + JlCxx
-target_link_libraries(RDKitWrap PRIVATE
+target_link_libraries(jlRDKit PRIVATE
     ${JLCXX_LIBRARY}
     ${RDKIT_LIB_DIR}/libRDKitGraphMol.so
     ${RDKIT_LIB_DIR}/libRDKitSmilesParse.so
@@ -70,8 +108,9 @@ target_link_libraries(RDKitWrap PRIVATE
     ${RDKIT_LIB_DIR}/libRDKitSubstructMatch.so
 )
 
-# RPATH for runtime library discovery
-set_target_properties(RDKitWrap PROPERTIES
-    BUILD_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR}"
-    INSTALL_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR}"
+# Output library to RDKit/deps/ so the Julia module can find it
+set_target_properties(jlRDKit PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/RDKit/deps"
+    BUILD_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR};${BOOST_ROOT}/lib"
+    INSTALL_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR};${BOOST_ROOT}/lib"
 )

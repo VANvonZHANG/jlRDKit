@@ -9,11 +9,9 @@
 #include <memory>
 #include <vector>
 
-namespace RDKit {
-    class RWMol;
-    class ROMol;
-    class Atom;
-}
+#include <GraphMol/ROMol.h>
+#include <GraphMol/RWMol.h>
+#include <GraphMol/Atom.h>
 
 // SMILES I/O Shims
 std::shared_ptr<RDKit::RWMol> smiles_to_mol(const std::string& smi);
