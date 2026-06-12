@@ -108,9 +108,9 @@ target_link_libraries(jlRDKit PRIVATE
     ${RDKIT_LIB_DIR}/libRDKitSubstructMatch.so
 )
 
-# Output library to RDKit/deps/ so the Julia module can find it
+# Output library to build/lib/ — loaded by RDKit.jl via JLRDKIT_LIB_PATH
 set_target_properties(jlRDKit PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/RDKit/deps"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     BUILD_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR};${BOOST_ROOT}/lib"
     INSTALL_RPATH "${JLCXX_ROOT}/lib;${RDKIT_LIB_DIR};${BOOST_ROOT}/lib"
 )
