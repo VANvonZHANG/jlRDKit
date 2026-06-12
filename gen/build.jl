@@ -118,11 +118,11 @@ if isfile(generated_cxx)
     content = replace(content, r"^\s*std::shared_ptr<Wrapper>\(newJlstd_basic_string_view\(jlModule\)\),?\s*$"m => "")
 
     # 6. Remove export line from Julia module (if present)
-    julia_module_file = joinpath(sourcedir, "RDKit", "src", "RDKit.jl")
-    if isfile(julia_module_file)
-        julia_content = read(julia_module_file, String)
-        julia_content = replace(julia_content, r",?\s*std!basic_string_view" => "")
-        write(julia_module_file, julia_content)
+    julia_exports_file = joinpath(sourcedir, "libRDKit", "src", "RDKit-exports.jl")
+    if isfile(julia_exports_file)
+        exports_content = read(julia_exports_file, String)
+        exports_content = replace(exports_content, r",?\s*std!basic_string_view" => "")
+        write(julia_exports_file, exports_content)
     end
 
     # ============================================================
@@ -141,7 +141,7 @@ if isfile(generated_cxx)
 
     # Use a function to avoid Julia soft-scope issues with for-loop
     # variable assignment at top level in scripts.
-    function remove_non_rdkit_wrappers!(content::String, julia_module_file::String)
+    function remove_non_rdkit_wrappers!(content::String, julia_exports_file::String)
         # Discover all non-RDKit wrapper struct names
         non_rdkit_names = Vector{String}()
         for m in eachmatch(r"\b(Jlstd_[A-Za-z_]\w*|Jlboost_[A-Za-z_]\w*)\b", content)
@@ -200,23 +200,23 @@ if isfile(generated_cxx)
                 content = replace(content, Regex("^\\s*std::shared_ptr<Wrapper>\\(new$(wname)\\(jlModule\\)\\),?\\s*\$", "m") => "")
 
                 # Remove Julia export line if present (e.g. std!list, boost!detail!edge_desc_impl)
-                if isfile(julia_module_file)
-                    julia_content = read(julia_module_file, String)
+                if isfile(julia_exports_file)
+                    exports_content = read(julia_exports_file, String)
                     # Convert C++ wrapper name to Julia export name:
                     # Jlstd_list -> std!list, Jlboost_detail_edge_desc_impl -> boost!detail!edge_desc_impl
                     julia_export_name = replace(wname[3:end], "_" => "!")
                     # Simple string replace -- no regex metacharacters in export names
-                    julia_content = replace(julia_content, ", " * julia_export_name => "")
-                    julia_content = replace(julia_content, julia_export_name * ", " => "")
-                    julia_content = replace(julia_content, julia_export_name => "")
-                    write(julia_module_file, julia_content)
+                    exports_content = replace(exports_content, ", " * julia_export_name => "")
+                    exports_content = replace(exports_content, julia_export_name * ", " => "")
+                    exports_content = replace(exports_content, julia_export_name => "")
+                    write(julia_exports_file, exports_content)
                 end
             end
         end
         return content
     end
 
-    content = remove_non_rdkit_wrappers!(content, julia_module_file)
+    content = remove_non_rdkit_wrappers!(content, julia_exports_file)
 
     # ============================================================
     # Remove namespace jlcxx blocks with std::list or std::map BuildParameterList
