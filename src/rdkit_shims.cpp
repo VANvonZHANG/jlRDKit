@@ -8,6 +8,10 @@
 #include <GraphMol/Bond.h>
 #include <GraphMol/FileParsers/FileParsers.h>
 #include <GraphMol/FileParsers/MolSupplier.h>
+#include <GraphMol/Fingerprints/MorganFingerprints.h>
+#include <GraphMol/Fingerprints/Fingerprints.h>
+#include <GraphMol/MolDraw2D/MolDraw2DSVG.h>
+#include <DataStructs/ExplicitBitVect.h>
 
 // SMILES to molecule (hides SmilesParserParams)
 std::shared_ptr<RDKit::RWMol> smiles_to_mol(const std::string& smi) {
@@ -78,6 +82,59 @@ std::vector<std::shared_ptr<RDKit::RWMol>> read_sdf_mols(const std::string& file
             }
         }
         return result;
+    } catch (const std::exception& e) {
+        throw std::runtime_error(std::string("RDKit error: ") + e.what());
+    }
+}
+
+// --- Fingerprint shims ---
+// Note: ExplicitBitVect::toString() returns RDKit's binary PICKLE format
+// (e.g. 20 bytes for a 2048-bit vector), NOT raw packed bits. This RDKit
+// version has no getNumBytes()/getBytes() on ExplicitBitVect, but it does
+// expose getNumBits() and getBit(i) (from the base BitVect). We pack the
+// raw bits into a uint8_t vector for transport to Julia.
+std::vector<uint8_t> calc_morgan_fp(const std::shared_ptr<RDKit::RWMol>& mol,
+                                     unsigned int radius, unsigned int nbits) {
+    try {
+        std::unique_ptr<ExplicitBitVect> fp(
+            RDKit::MorganFingerprints::getFingerprintAsBitVect(*mol, radius, nbits));
+        unsigned int nbits_actual = fp->getNumBits();
+        std::vector<uint8_t> bytes((nbits_actual + 7) / 8, 0);
+        for (unsigned int i = 0; i < nbits_actual; ++i) {
+            if (fp->getBit(i)) bytes[i / 8] |= static_cast<uint8_t>(1u << (i % 8));
+        }
+        return bytes;
+    } catch (const std::exception& e) {
+        throw std::runtime_error(std::string("RDKit error: ") + e.what());
+    }
+}
+
+std::vector<uint8_t> calc_rdkit_fp(const std::shared_ptr<RDKit::RWMol>& mol,
+                                    unsigned int min_path, unsigned int max_path) {
+    try {
+        std::unique_ptr<ExplicitBitVect> fp(
+            RDKit::RDKFingerprintMol(*mol, min_path, max_path));
+        unsigned int nbits_actual = fp->getNumBits();
+        std::vector<uint8_t> bytes((nbits_actual + 7) / 8, 0);
+        for (unsigned int i = 0; i < nbits_actual; ++i) {
+            if (fp->getBit(i)) bytes[i / 8] |= static_cast<uint8_t>(1u << (i % 8));
+        }
+        return bytes;
+    } catch (const std::exception& e) {
+        throw std::runtime_error(std::string("RDKit error: ") + e.what());
+    }
+}
+
+// --- Drawing shim ---
+// Note: MolDraw2DSVG has no getSVG(); the internal-stringstream ctor stores
+// output and exposes it via getDrawingText().
+std::string mol_to_svg(const std::shared_ptr<RDKit::RWMol>& mol,
+                        int width, int height) {
+    try {
+        RDKit::MolDraw2DSVG drawer(width, height);
+        drawer.drawMolecule(*mol);
+        drawer.finishDrawing();
+        return drawer.getDrawingText();
     } catch (const std::exception& e) {
         throw std::runtime_error(std::string("RDKit error: ") + e.what());
     }

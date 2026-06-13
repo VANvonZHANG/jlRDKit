@@ -28,3 +28,13 @@ std::vector<const RDKit::Bond*> mol_get_bonds(const RDKit::ROMol& mol);
 std::string mol_to_molblock(const std::shared_ptr<RDKit::RWMol>& mol);
 std::shared_ptr<RDKit::RWMol> molblock_to_mol(const std::string& block);
 std::vector<std::shared_ptr<RDKit::RWMol>> read_sdf_mols(const std::string& filename);
+
+// --- Fingerprint shims (return serialized bit vectors as raw bytes) ---
+std::vector<uint8_t> calc_morgan_fp(const std::shared_ptr<RDKit::RWMol>& mol,
+                                     unsigned int radius, unsigned int nbits);
+std::vector<uint8_t> calc_rdkit_fp(const std::shared_ptr<RDKit::RWMol>& mol,
+                                    unsigned int min_path, unsigned int max_path);
+
+// --- Drawing shim ---
+std::string mol_to_svg(const std::shared_ptr<RDKit::RWMol>& mol,
+                        int width, int height);

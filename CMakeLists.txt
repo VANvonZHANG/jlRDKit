@@ -107,6 +107,8 @@ target_link_libraries(jlRDKit PRIVATE
     ${RDKIT_LIB_DIR}/libRDKitRDGeometryLib.so
     ${RDKIT_LIB_DIR}/libRDKitSubstructMatch.so
     ${RDKIT_LIB_DIR}/libRDKitFileParsers.so
+    ${RDKIT_LIB_DIR}/libRDKitFingerprints.so
+    ${RDKIT_LIB_DIR}/libRDKitMolDraw2D.so
 )
 
 # Output library to build/lib/ — loaded by RDKit.jl via JLRDKIT_LIB_PATH

@@ -39,4 +39,9 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod) {
     mod.method("mol_to_molblock",  &mol_to_molblock);
     mod.method("molblock_to_mol",  &molblock_to_mol);
     mod.method("read_sdf_mols",  &read_sdf_mols);
+
+    // Fingerprint + drawing shims
+    mod.method("calc_morgan_fp",  &calc_morgan_fp);
+    mod.method("calc_rdkit_fp",  &calc_rdkit_fp);
+    mod.method("mol_to_svg",  &mol_to_svg);
 }
