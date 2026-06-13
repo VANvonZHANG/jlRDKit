@@ -7,7 +7,9 @@
 //      define_julia_module that calls wrapit_module first, then adds shims.
 //
 // WrapIt-generated code registers: 29 types, enums, constants, ~400+ methods
-// Shim functions register: smiles_to_mol, mol_to_smiles, mol_get_atoms
+// Shim functions register: smiles_to_mol, mol_to_smiles, mol_get_atoms,
+//   mol_get_bonds, mol_to_molblock, molblock_to_mol, read_sdf_mols,
+//   calc_morgan_fp, calc_rdkit_fp, mol_to_svg
 
 #include <jlcxx/jlcxx.hpp>
 #include <jlcxx/stl.hpp>
@@ -31,4 +33,10 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod) {
     mod.method("smiles_to_mol",  &smiles_to_mol);
     mod.method("mol_to_smiles",  &mol_to_smiles);
     mod.method("mol_get_atoms",  &mol_get_atoms);
+
+    // Bond traversal + File I/O shims
+    mod.method("mol_get_bonds",  &mol_get_bonds);
+    mod.method("mol_to_molblock",  &mol_to_molblock);
+    mod.method("molblock_to_mol",  &molblock_to_mol);
+    mod.method("read_sdf_mols",  &read_sdf_mols);
 }
