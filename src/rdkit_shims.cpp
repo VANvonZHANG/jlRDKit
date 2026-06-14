@@ -71,6 +71,13 @@ std::shared_ptr<RDKit::RWMol> molblock_to_mol(const std::string& block) {
     }
 }
 
+// NOTE (contract, verified empirically by the test suite): read_sdf_mols is
+// LENIENT on bad records but FAILS FAST on unreadable files. A per-record
+// sanitization failure (e.g. bad valence with sanitize=true) is treated by
+// SDMolSupplier as recoverable — next() returns null and the record is
+// silently skipped via the `if (mol)` guard below; it does NOT throw. Only a
+// constructor-level failure (e.g. an empty or non-existent file that cannot
+// establish a stream reader) throws std::runtime_error and aborts the read.
 std::vector<std::shared_ptr<RDKit::RWMol>> read_sdf_mols(const std::string& filename) {
     try {
         std::vector<std::shared_ptr<RDKit::RWMol>> result;
