@@ -106,6 +106,7 @@ target_link_libraries(jlRDKit PRIVATE
     ${RDKIT_LIB_DIR}/libRDKitRDGeneral.so
     ${RDKIT_LIB_DIR}/libRDKitRDGeometryLib.so
     ${RDKIT_LIB_DIR}/libRDKitSubstructMatch.so
+    ${RDKIT_LIB_DIR}/libRDKitFileParsers.so
 )
 
 # Output library to build/lib/ — loaded by RDKit.jl via JLRDKIT_LIB_PATH

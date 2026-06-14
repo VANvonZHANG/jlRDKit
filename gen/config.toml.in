@@ -16,7 +16,21 @@ input = [
     "GraphMol/MonomerInfo.h",
     "GraphMol/MolOps.h",
     "GraphMol/SmilesParse/SmilesParse.h",
-    "GraphMol/SmilesParse/SmilesWrite.h"
+    "GraphMol/SmilesParse/SmilesWrite.h",
+    # Batch 1: GraphMol core expansion
+    "GraphMol/PeriodicTable.h",
+    "GraphMol/QueryAtom.h",
+    "GraphMol/QueryBond.h",
+    "GraphMol/MolBundle.h",
+    "GraphMol/SubstanceGroup.h",
+    "GraphMol/MolPickler.h",
+    "GraphMol/Chirality.h",
+    "GraphMol/AtomIterators.h",
+    "GraphMol/BondIterators.h",
+    "GraphMol/FileParsers/FileParsers.h",
+    "GraphMol/FileParsers/FileWriters.h",
+    "GraphMol/FileParsers/MolSupplier.h",
+    "GraphMol/FileParsers/MolWriters.h",
 ]
 
 # Include directories (resolved at build time from Julia JLL packages)
